@@ -1,0 +1,968 @@
+-------- prac 1 ---------  (IMPLEMENT CAESAR CIPHER (SYMMETRIC ENCRYPTION))
+
+def caesar_encrypt(realText, step):
+  outText = []
+  cryptText = []
+  uppercase = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+  lowercase = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+  'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+  for eachLetter in realText:
+   if eachLetter in uppercase:
+    index = uppercase.index(eachLetter)
+    crypting = (index + step) % 26
+    cryptText.append(crypting)
+    newLetter = uppercase[crypting]
+    outText.append(newLetter)
+   elif eachLetter in lowercase:
+    index = lowercase.index(eachLetter)
+    crypting = (index + step) % 26
+    cryptText.append(crypting)
+    newLetter = lowercase[crypting]
+    outText.append(newLetter)
+  return outText
+encode = caesar_encrypt('abcDEF', 2)
+print(encode)
+decode = caesar_encrypt(caesar_encrypt('abcDEF',2),26-2)
+print(decode)
+
+-------- prac 2 ---------  (Implementation of RSA Algorithm (Asymmetric Encryption))
+
+import math
+
+def gcd(a, h):
+    while h != 0:
+     a, h = h, a % h
+    return a
+
+
+# Function to compute modular inverse using Extended Euclidean Algorithm
+def mod_inverse(e, phi):
+    original_phi = phi
+    x0, x1 = 0, 1
+    if phi == 1:
+     return 0
+    while e > 1:
+        # q is the quotient
+        q = e // phi
+        t = phi
+        # Update phi and e
+        phi = e % phi
+        e = t
+        t = x0
+        x0 = x1 - q * x0
+        x1 = t
+    if x1 < 0:
+      x1 += original_phi
+    return x1
+# RSA Key Setup
+p = 61  # Changed to larger primes for practical RSA example
+q = 53  # Changed to larger primes for practical RSA example
+n = p * q
+phi = (p - 1) * (q - 1)
+e = 17  # Common choice for e that is co-prime with phi
+# Ensure e is co-prime with phi
+while gcd(e, phi) != 1:
+    e += 1
+# Compute private key d
+d = mod_inverse(e, phi)
+if d is None:
+    raise ValueError("Modular inverse does not exist. Choose different values for e.")
+# Message to be encrypted (must be less than n)
+msg = 57
+print("Message data = ", msg)
+# Encryption
+c = pow(msg, e, n)
+print(f"Encrypted data = {c}")
+# Decryption
+m = pow(c, d, n)
+print(f"Original Message Sent = {m}")
+
+
+-------- prac 3 ---------  (Implementation of SHA-256)
+
+import hashlib
+string="John Wick"
+encoded=string.encode()
+result = hashlib.sha256(encoded)
+print("String : ", end ="")
+print(string)
+print("Hash Value : ", end ="")
+print(result)
+print("Hexadecimal equivalent: ",result.hexdigest())
+print("Digest Size : ", end ="")
+print(result.digest_size)
+print("Block Size : ", end ="")
+print(result.block_size)
+
+
+-------- prac 4 ---------  (Implementation of Binary Tree/MerkleTree)
+
+class Node:
+    def __init__(self, data):
+        self.left = None
+        self.right = None
+        self.data = data
+
+    # Insert Node
+    def insert(self, data):
+        if self.data:
+            if data < self.data:
+                if self.left is None:
+                    self.left = Node(data)
+                else:
+                    self.left.insert(data)
+            elif data > self.data:
+                if self.right is None:
+                    self.right = Node(data)
+                else:
+                    self.right.insert(data)
+
+    # Print the Tree
+    def PrintTree(self):
+        if self.left:
+            self.left.PrintTree()
+        print(self.data, end=" ")
+        if self.right:
+            self.right.PrintTree()
+
+    # Preorder traversal (Root -> Left -> Right)
+    def PreorderTraversal(self, root):
+        res = []
+        if root:
+            res.append(root.data)
+            res = res + self.PreorderTraversal(root.left)
+            res = res + self.PreorderTraversal(root.right)
+        return res
+
+    # Postorder traversal (Left -> Right -> Root)
+    def PostorderTraversal(self, root):
+        res = []
+        if root:
+            res = self.PostorderTraversal(root.left)
+            res = res + self.PostorderTraversal(root.right)
+            res.append(root.data)
+        return res
+
+
+# Inorder traversal of a binary tree
+def inorder(temp):
+    if not temp:
+        return
+    inorder(temp.left)
+    print(temp.data, end=" ")
+    inorder(temp.right)
+
+
+# Function to delete the given deepest node (d_node) in binary tree
+def deleteDeepest(root, d_node):
+    q = []
+    q.append(root)
+    while len(q):
+        temp = q.pop(0)
+        if temp is d_node:
+            temp = None
+            return
+        if temp.right:
+            if temp.right is d_node:
+                temp.right = None
+                return
+            else:
+                q.append(temp.right)
+        if temp.left:
+            if temp.left is d_node:
+                temp.left = None
+                return
+            else:
+                q.append(temp.left)
+
+
+# Function to delete element in binary tree
+def deletion(root, key):
+    if root is None:
+        return None
+    if root.left is None and root.right is None:
+        if root.data == key:
+            return None
+        else:
+            return root
+    key_node = None
+    q = []
+    q.append(root)
+    temp = None
+    while len(q):
+        temp = q.pop(0)
+        if temp.data == key:
+            key_node = temp
+        if temp.left:
+            q.append(temp.left)
+        if temp.right:
+            q.append(temp.right)
+    if key_node:
+        x = temp.data
+        deleteDeepest(root, temp)
+        key_node.data = x
+    return root
+
+
+print("Binary Tree:")
+root = Node(27)
+root.insert(14)
+root.insert(35)
+root.insert(10)
+root.insert(19)
+root.insert(31)
+root.insert(42)
+root.PrintTree()
+
+print("\nInorder Traversal before the deletion:")
+inorder(root)
+
+key = 14
+root = deletion(root, key)
+
+print("\nInorder Traversal after the deletion:")
+inorder(root)
+
+print("\nPreorder Traversal:", root.PreorderTraversal(root))
+print("Postorder Traversal:", root.PostorderTraversal(root))
+
+
+-------- prac 6 ---------  (Ganache. MetaMask) ----- AS
+
+//SPDX-License-Identifier: GP-3.0
+// Solidity program to
+// demonstrate addition
+pragma solidity 0.8.0;
+contract gfgMathPlus
+{
+// Declaring the state
+// variables
+uint firstNo ;
+uint secondNo ;
+// Defining the function
+// to set the value of the
+// first variable
+function firstNoSet(uint x) public
+{
+firstNo = x;
+}
+// Defining the function
+// to set the value of the
+// second variable
+function secondNoSet(uint y) public
+{
+secondNo = y;
+}
+// Defining the function
+// to add the two variables
+function add() view public returns (uint)
+{
+uint Sum = firstNo + secondNo ;
+// Sum of two variables
+return Sum;
+}
+}
+
+
+
+
+
+
+
+
+-------- prac 7 ---------  (Solidity) ----- HV
+
+Q.1 Write a program in solidity to find area and circumference of a circle,
+rectangle
+
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.0;
+contract q1 {
+uint256 l = 50;
+uint256 w = 25;
+uint256 s = 9;
+uint256 r = 5;
+function area_of_rectangle() public view returns (uint256) {
+uint256 area = l * w;
+return area;
+}
+function area_of_square() public view returns (uint256) {
+uint256 area = s * s;
+return area;
+}
+function area_of_circle() public view returns (uint256) {
+uint256 area = 3 * r * r;
+return area;
+}
+function perimeter_of_rectangle() public view returns (uint256) {
+uint256 perimeter = 2 * (l + w);
+return perimeter;
+}
+function perimeter_of_square() public view returns (uint256) {
+uint256 perimeter = 4 * s;
+return perimeter;
+}
+function circumference_of_circle() public view returns (uint256) {
+    uint256 circumference = 2 * 3 * r;
+return circumference;
+}
+}
+
+Q.2Write a program in solidity to input the basic salary of an employee
+and calculate
+gross salary according to given conditions:
+a) Base Salary <= 10000 HRA=20% DA = 80%
+b) Base Salary is between 10001 to 20000:HRA =25% DA=90%
+c) Base Salary>=20001 HRA=30% DA=95%
+
+
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.0;
+contract q2 {
+function gross_salary(uint256 basic_salary) public view returns
+(uint256) {
+if (basic_salary <= 10000) {
+uint256 hra = basic_salary * 20 / 100;
+uint256 da = basic_salary * 80 / 100;
+uint256 gross_salary_total = basic_salary + hra + da;
+return gross_salary_total;
+}
+else if (basic_salary >= 10001 && basic_salary <= 20000) {
+uint256 hra = basic_salary * 25 / 100;
+uint256 da = basic_salary * 90 / 100;
+uint256 gross_salary_total = basic_salary + hra + da;
+return gross_salary_total;
+}
+else if (basic_salary >= 20001) {
+uint256 hra = basic_salary * 30 / 100;
+uint256 da = basic_salary * 95 / 100;
+uint256 gross_salary_total = basic_salary + hra + da;
+return gross_salary_total;
+}
+}
+}
+
+Q3. Write a program in solidity to create a structure student with Roll no, Name, Class, Department, Course enrolled as variables.
+i) Add information about 5 students.
+ii)Search for a student using Roll no
+iii)Display all information
+
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
+contract q2 {
+struct student {
+uint256 rollNo;
+string name;
+string placedCompany;
+string degreeCourse;
+}
+student[] s;
+function addStudent(
+uint256 rollNo,
+string memory name,
+string memory placedCompany,
+string memory degreeCourse
+)
+public
+{
+s.push(student(rollNo, name, placedCompany, degreeCourse));
+}
+function getStudentByRollNo(uint256 rollNumber)
+public
+view
+returns (uint256, string memory)
+{
+for (uint256 i = 0; i < s.length; i++) {
+if (s[i].rollNo == rollNumber) {
+return (s[i].rollNo, s[i].name);
+}
+}
+return (s[0].rollNo, s[0].name); // Consider handling cases where no student is found
+}
+function getAllStudents()
+public
+view
+returns (student[] memory)
+{
+return s;
+}
+}
+
+
+Q.4 4) Create a structure Consumer with Name, Address, Consumer ID, Units
+and Amount as members.Write a program in solidity to calculate the
+total electricity bill according to the given condition:
+For first 50 units Rs. 0.50/unit For next 100 units
+Rs. 0.75/unit For next 100 units
+Rs. 1.20/unit For unit above 250
+Rs. 1.50/unit An additional surcharge of 20% is added to the bill. Display
+the information of 5 such consumers along with their units consumed
+and amount.
+
+
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
+contract q4 {
+struct Consumer {
+uint256 units;
+string name;
+string addr;
+uint256 consumerID;
+uint256 amount;
+}
+Consumer[] consumer;
+function addConsumerInfo(
+uint256 units,
+string memory name,
+string memory addr,
+uint256 consumerID
+)
+public
+{
+consumer.push(Consumer(units, name, addr, consumerID, 0));
+}
+function getBillAmount() public {
+    uint256 i = 0;
+uint256 amount = 0;
+uint256 surcharge = 0;
+uint256 units = 0;
+for (i = 0; i < consumer.length; i++) {
+units = consumer[i].units;
+if (units <= 50) {
+amount = ((units * 1) / 2);
+} else if (units <= 150) {
+amount = 25 + (((units - 50) * 3) / 4);
+} else if (units <= 250) {
+amount = 100 + (((units - 150) * 6) / 5);
+} else {
+amount = 220 + (((units - 250) * 3) / 2);
+}
+surcharge = (amount * 20) / 100;
+amount = amount + surcharge;
+consumer[i].amount = amount;
+}
+}
+function displayConsumerInfo(uint256 consumerID)
+public
+view
+returns (
+uint256,
+string memory,
+string memory,
+uint256,
+uint256
+)
+{
+uint256 i = 0;
+for (i = 0; i < consumer.length; i++) {
+if (consumer[i].consumerID == consumerID) {
+    return (
+consumer[i].units,
+consumer[i].name,
+consumer[i].addr,
+consumer[i].consumerID,
+consumer[i].amount
+);
+}
+}
+return (
+consumer[0].units,
+consumer[0].name,
+consumer[0].addr,
+consumer[0].consumerID,
+consumer[0].amount
+);
+}
+function displayAllInfo()
+public
+view
+returns (Consumer[] memory)
+{
+return consumer;
+}
+}
+
+
+
+-------- prac 8 ---------  (Execution of smart contract using truffle framework.) ----- HV
+1. 1. Install Node JS and Truffle Suite to develop and migrate the smart
+contracts into the Private Blockchain network. Make use of Truffle tools
+like compile, migrate and test for compilation, migration and testing the
+smart contracts through Blockchain.
+
+Steps:
+Install Node JS
+npm install -g truffle
+Create a new truffle project:
+► Go to cmd prompt:
+► $ mkdir blockchain-toolkit
+► $ cd blockchain-toolkit
+► $ truffle init
+► copy-and-pasting the below code into package.json in blockchain-toolkit file
+
+package.json:
+{
+"name": "blockchain-toolkit-8",
+"version": "1.0.0",
+"description": "The Complete Blockchain Developer Toolkit for 2019 & Beyond",
+"main": "truffle-config.js",
+"directories": {
+"test": "test"
+},
+"scripts": {
+"dev": "lite-server",
+"test": "echo \"Error: no test specified\" && exit 1"
+},
+"author": "ajaykarthikesan@gmail.com",
+"license": "ISC",
+"devDependencies": {
+"bootstrap": "4.1.3",
+"chai": "^4.1.2",
+"chai-as-promised": "^7.1.1",
+"chai-bignumber": "^2.0.2",
+"dotenv": "^4.0.0",
+"ganache-cli": "^6.1.8",
+"lite-server": "^2.3.0",
+"nodemon": "^1.17.3",
+"solidity-coverage": "^0.4.15",
+"truffle": "5.0.0-beta.0",
+"truffle-contract": "3.0.6",
+"truffle-hdwallet-provider": "^1.0.0-web3one.0"
+}
+}
+Save package.json file
+
+
+Npm install
+Create  Mycontract.sol  (./contracts/MyContract.sol)
+Copy the below contract code and save in Mycontract.sol
+
+
+MyContract.sol:
+pragma solidity >=0.4.2 <=0.8.21;
+contract MyContract {
+string value;
+constructor() public {
+value = "myValue";
+}
+function get() public view returns (string memory) {
+return value;
+}
+function set(string memory _value) public {
+value = _value;
+}
+}
+
+
+Run truffle compile
+Update the project configuration file (Find the file truffle-config.js and paste the
+following code:)
+truffle-config.js:
+/**
+ * Use this file to configure your truffle project. It's seeded with some
+ * common settings for different networks and features like migrations,
+ * compilation, and testing. Uncomment the ones you need or modify
+ * them to suit your project as necessary.
+ *
+ * More information about configuration can be found at:
+ *
+ * https://trufflesuite.com/docs/truffle/reference/configuration
+ *
+ * Hands-off deployment with Infura
+ * --------------------------------
+ *
+ * Do you have a complex application that requires lots of transactions to deploy?
+ * Use this approach to make deployment a breeze 🏖️:
+ *
+ * Infura deployment needs a wallet provider (like @truffle/hdwallet-provider)
+ * to sign transactions before they're sent to a remote public node.
+ * Infura accounts are available for free at 🔍: https://infura.io/register
+ *
+ * You'll need a mnemonic - the twelve word phrase the wallet uses to generate
+ * public/private key pairs. You can store your secrets 🤐 in a .env file.
+ * In your project root, run `$ npm install dotenv`.
+ * Create .env (which should be .gitignored) and declare your MNEMONIC
+ * and Infura PROJECT_ID variables inside.
+ * For example, your .env file will have the following structure:
+ *
+ * MNEMONIC = <Your 12 phrase mnemonic>
+ * PROJECT_ID = <Your Infura project id>
+ *
+ * Deployment with Truffle Dashboard (Recommended for best security practice)
+ * --------------------------------------------------------------------------
+ *
+ * Are you concerned about security and minimizing rekt status 🤔?
+ * Use this method for best security:
+ *
+ * Truffle Dashboard lets you review transactions in detail, and leverages
+ * MetaMask for signing, so there's no need to copy-paste your mnemonic.
+ * More details can be found at 🔎:
+ *
+ * https://trufflesuite.com/docs/truffle/getting-started/using-the-truffle-dashboard/
+ */
+
+// require('dotenv').config();
+// const { MNEMONIC, PROJECT_ID } = process.env;
+
+// const HDWalletProvider = require('@truffle/hdwallet-provider');
+
+module.exports = {
+  /**
+   * Networks define how you connect to your ethereum client and let you set the
+   * defaults web3 uses to send transactions. If you don't specify one truffle
+   * will spin up a managed Ganache instance for you on port 9545 when you
+   * run `develop` or `test`. You can ask a truffle command to use a specific
+   * network from the command line, e.g
+   *
+   * $ truffle test --network <network-name>
+   */
+
+  networks: {
+    // Useful for testing. The `development` name is special - truffle uses it by default
+    // if it's defined here and no other network is specified at the command line.
+    // You should run a client (like ganache, geth, or parity) in a separate terminal
+    // tab if you use this network and you must also set the `host`, `port` and `network_id`
+    // options below to some value.
+    //
+    // development: {
+    //  host: "127.0.0.1",     // Localhost (default: none)
+    //  port: 7545,            // Standard Ethereum port (default: none)
+    //  network_id: "*",       // Any network (default: none)
+    // },
+    //
+    // An additional network, but with some advanced options…
+    // advanced: {
+    //   port: 8777,             // Custom port
+    //   network_id: 1342,       // Custom network
+    //   gas: 8500000,           // Gas sent with each transaction (default: ~6700000)
+    //   gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
+    //   from: <address>,        // Account to send transactions from (default: accounts[0])
+    //   websocket: true         // Enable EventEmitter interface for web3 (default: false)
+    // },
+    //
+    // Useful for deploying to a public network.
+    // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
+    // goerli: {
+    //   provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
+    //   network_id: 5,       // Goerli's id
+    //   confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
+    //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    // },
+    //
+    // Useful for private networks
+    // private: {
+    //   provider: () => new HDWalletProvider(MNEMONIC, `https://network.io`),
+    //   network_id: 2111,   // This network is yours, in the cloud.
+    //   production: true    // Treats this network as if it was a public net. (default: false)
+    // }
+  },
+
+  // Set default mocha options here, use special reporters, etc.
+  mocha: {
+    // timeout: 100000
+  },
+
+  // Configure your compilers
+  compilers: {
+    solc: {
+      version: "0.8.17", // Fetch exact version from solc-bin (default: truffle's version)
+      // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
+      // settings: {          // See the solidity docs for advice about optimization and evmVersion
+      //  optimizer: {
+      //    enabled: false,
+      //    runs: 200
+      //  },
+      //  evmVersion: "byzantium"
+      // }
+    },
+  },
+
+  // Truffle DB is currently disabled by default; to enable it, change enabled:
+  // false to enabled: true. The default storage location can also be
+  // overridden by specifying the adapter settings, as shown in the commented code below.
+  //
+  // NOTE: It is not possible to migrate your contracts to truffle DB and you should
+  // make a backup of your artifacts to a safe location before enabling this feature.
+  //
+  // After you backed up your artifacts you can utilize db by running migrate as follows:
+  // $ truffle migrate --reset --compile-all
+  //
+  // db: {
+  //   enabled: false,
+  //   host: "127.0.0.1",
+  //   adapter: {
+  //     name: "indexeddb",
+  //     settings: {
+  //       directory: ".db"
+  //     }
+  //   }
+  // }
+};
+
+
+Create a migration script inside the migrations directory to deploy the smart contract to the personal blockchain network.
+
+create 
+2_depoy_contracts.js : 
+var MyContract = artifacts.require("./MyContract.sol");
+module.exports = function(deployer)
+{
+deployer.deploy(MyContract);
+};
+
+
+Start Ganache
+Run  truffle migrate
+truffle console
+MyContract.deployed().then((instance) => { app = instance } )
+app.get()
+app.set('New Value')
+app.get()
+Check GANACHE TRANSACTION LOGS for screenshot
+
+
+
+2. Create a Smart contract to simulate function overloading . Execute the contract using the truffle framework.
+
+Go to cmd prompt
+$ mkdir blockchain-toolkit-overloading
+$ cd blockchain-toolkit-overloading
+$ truffle init
+$ touch package.json
+
+package.json:
+{
+"name": "blockchain-toolkit-overloading",
+"version": "1.0.0",
+"description": "The Complete Blockchain Developer Toolkit for 2019 & Beyond",
+"main": "truffle-config.js",
+"directories": {
+"test": "test"
+},
+"scripts": {
+"dev": "lite-server",
+"test": "echo \"Error: no test specified\" && exit 1"
+},
+"author": "ajay.karthikesan@gmail.com",
+"license": "ISC",
+"devDependencies": {
+"bootstrap": "4.1.3",
+"chai": "^4.1.2",
+"chai-as-promised": "^7.1.1",
+"chai-bignumber": "^2.0.2",
+"dotenv": "^4.0.0",
+"ganache-cli": "^6.1.8",
+"lite-server": "^2.3.0",
+"nodemon": "^1.17.3",
+"solidity-coverage": "^0.4.15",
+"truffle": "5.0.0-beta.0",
+"truffle-contract": "3.0.6",
+"truffle-hdwallet-provider": "^1.0.0-web3one.0"
+}
+}
+
+
+Save package.json file
+npm install
+
+Update the project config file( find truffle-config.js and paste the code)
+
+truffle-config.js:
+/**
+ * Use this file to configure your truffle project. It's seeded with some
+ * common settings for different networks and features like migrations,
+ * compilation, and testing. Uncomment the ones you need or modify
+ * them to suit your project as necessary.
+ *
+ * More information about configuration can be found at:
+ *
+ * https://trufflesuite.com/docs/truffle/reference/configuration
+ *
+ * Hands-off deployment with Infura
+ * --------------------------------
+ *
+ * Do you have a complex application that requires lots of transactions to deploy?
+ * Use this approach to make deployment a breeze 🏖️:
+ *
+ * Infura deployment needs a wallet provider (like @truffle/hdwallet-provider)
+ * to sign transactions before they're sent to a remote public node.
+ * Infura accounts are available for free at 🔍: https://infura.io/register
+ *
+ * You'll need a mnemonic - the twelve word phrase the wallet uses to generate
+ * public/private key pairs. You can store your secrets 🤐 in a .env file.
+ * In your project root, run `$ npm install dotenv`.
+ * Create .env (which should be .gitignored) and declare your MNEMONIC
+ * and Infura PROJECT_ID variables inside.
+ * For example, your .env file will have the following structure:
+ *
+ * MNEMONIC = <Your 12 phrase mnemonic>
+ * PROJECT_ID = <Your Infura project id>
+ *
+ * Deployment with Truffle Dashboard (Recommended for best security practice)
+ * --------------------------------------------------------------------------
+ *
+ * Are you concerned about security and minimizing rekt status 🤔?
+ * Use this method for best security:
+ *
+ * Truffle Dashboard lets you review transactions in detail, and leverages
+ * MetaMask for signing, so there's no need to copy-paste your mnemonic.
+ * More details can be found at 🔎:
+ *
+ * https://trufflesuite.com/docs/truffle/getting-started/using-the-truffle-dashboard/
+ */
+
+// require('dotenv').config();
+// const { MNEMONIC, PROJECT_ID } = process.env;
+
+// const HDWalletProvider = require('@truffle/hdwallet-provider');
+
+module.exports = {
+  /**
+   * Networks define how you connect to your ethereum client and let you set the
+   * defaults web3 uses to send transactions. If you don't specify one truffle
+   * will spin up a managed Ganache instance for you on port 9545 when you
+   * run `develop` or `test`. You can ask a truffle command to use a specific
+   * network from the command line, e.g
+   *
+   * $ truffle test --network <network-name>
+   */
+
+  networks: {
+    // Useful for testing. The `development` name is special - truffle uses it by default
+    // if it's defined here and no other network is specified at the command line.
+    // You should run a client (like ganache, geth, or parity) in a separate terminal
+    // tab if you use this network and you must also set the `host`, `port` and `network_id`
+    // options below to some value.
+    //
+    // development: {
+    //  host: "127.0.0.1",     // Localhost (default: none)
+    //  port: 7545,            // Standard Ethereum port (default: none)
+    //  network_id: "*",       // Any network (default: none)
+    // },
+    //
+    // An additional network, but with some advanced options…
+    // advanced: {
+    //   port: 8777,             // Custom port
+    //   network_id: 1342,       // Custom network
+    //   gas: 8500000,           // Gas sent with each transaction (default: ~6700000)
+    //   gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
+    //   from: <address>,        // Account to send transactions from (default: accounts[0])
+    //   websocket: true         // Enable EventEmitter interface for web3 (default: false)
+    // },
+    //
+    // Useful for deploying to a public network.
+    // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
+    // goerli: {
+    //   provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
+    //   network_id: 5,       // Goerli's id
+    //   confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
+    //   timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+    //   skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+    // },
+    //
+    // Useful for private networks
+    // private: {
+    //   provider: () => new HDWalletProvider(MNEMONIC, `https://network.io`),
+    //   network_id: 2111,   // This network is yours, in the cloud.
+    //   production: true    // Treats this network as if it was a public net. (default: false)
+    // }
+  },
+
+  // Set default mocha options here, use special reporters, etc.
+  mocha: {
+    // timeout: 100000
+  },
+
+  // Configure your compilers
+  compilers: {
+    solc: {
+      version: "0.8.0",      // Fetch exact version from solc-bin (default: truffle's version)
+      // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
+      // settings: {          // See the solidity docs for advice about optimization and evmVersion
+      //  optimizer: {
+      //    enabled: true,
+      //    runs: 200
+      //  },
+      //  evmVersion: "byzantium"
+      // }
+    }
+  },
+
+  // Truffle DB is currently disabled by default; to enable it, change enabled:
+  // false to enabled: true. The default storage location can also be
+  // overridden by specifying the adapter settings, as shown in the commented code below.
+  //
+  // NOTE: It is not possible to migrate your contracts to truffle DB and you should
+  // make a backup of your artifacts to a safe location before enabling this feature.
+  //
+  // After you backed up your artifacts you can utilize db by running migrate as follows:
+  // $ truffle migrate --reset --compile-all
+  //
+  // db: {
+  //   enabled: false,
+  //   host: "127.0.0.1",
+  //   adapter: {
+  //     name: "indexeddb",
+  //     settings: {
+  //       directory: ".db"
+  //     }
+  //   }
+  // }
+};
+
+
+Open Ganache network
+
+Start developing a smart contract using solidity:
+
+In contracts folder:
+
+overloading.sol
+
+pragma solidity >=0.4.2 <=0.8.21;
+contract overloading {
+function getSum(uint a, uint b) public pure returns (uint) {
+return a + b;
+}
+function getSum(
+uint a,
+uint b,
+uint c
+) public pure returns (uint) {
+return a + b + c;
+}
+function callSumWithTwoArguments() public pure returns (uint) {
+return getSum(1, 2);
+}
+function callSumWithThreeArguments() public pure returns (uint) {
+return getSum(1, 2, 3);
+}
+}
+
+
+In migration folder:
+
+2_deploy_contracts.js:
+var overloading = artifacts.require("./overloading.sol");
+module.exports = function (deployer) {
+deployer.deploy(overloading);
+};
+
+
+truffle compile
+
+truffle migrate
+
+truffle console
+overloading.deployed().then((instance) => {app = instance} )
+app.getSum(5,6)
+app.callSumWithTwoArguments()
+app.callSumWithThreeArguments()
+
+GANACHE TRANSACTION LOGS:
+
+
